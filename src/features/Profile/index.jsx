@@ -274,7 +274,10 @@ function Profile({ usergg, data, handleDelNote, setArchivedData, toolsNote }) {
 								top: "5%",
 								right: "5%",
 								display: "flex",
-								gap: "20px"
+								gap: "20px",
+								padding: "0 20px",
+								backgroundColor: "rgba(0, 0, 0, 0.2)",
+								alignItems: "center",
 							}
 						}
 					>
