@@ -26,6 +26,7 @@ import * as yup from "yup";
 import InputField from "../../../components/FormControls/InputField";
 import PasswordField from "../../../components/FormControls/PasswordField";
 import { register } from "../userSlice";
+import images from "../../../assets/images";
 
 function Copyright(props) {
   return (
@@ -132,7 +133,6 @@ function Register(props) {
       style={{
         position: "relative",
         width: "100%",
-        height: "100vh",
       }}
     >
       {isSubmitting && <LinearProgress className='pg-load' />}
@@ -160,18 +160,12 @@ function Register(props) {
           <CssBaseline />
           <Box
             sx={{
-              marginTop: 6,
+              marginTop: 2,
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
             }}
           >
-            <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-              <LockOutlinedIcon />
-            </Avatar>
-            <Typography component='h1' variant='h5'>
-              Sign up
-            </Typography>
             <Box component='form' onSubmit={form.handleSubmit(handleSubmit)} sx={{ mt: 1 }}>
               <Grid container spacing={2}>
                 <Grid item xs={6}>
@@ -205,7 +199,58 @@ function Register(props) {
               </Grid>
             </Box>
           </Box>
-          <Copyright sx={{ mt: 6, mb: 4 }} />
+          {/* <Copyright sx={{ mt: 6, mb: 4 }} /> */}
+
+
+          {/* register with social media account */}
+          <Box
+          >
+            <Grid container justifyContent={"center"}>
+              <Grid item xs={12} sx={{ textAlign: "center" }}>
+                <Typography variant='body2' color='text.secondary' align='center' sx={{ mb: 2 }}>
+                  {"Or register with social media account"}
+                </Typography>
+              </Grid>
+              <Box item xs={12} sx={
+                {
+                  textAlign: "center",
+                  display: "flex",
+                  justifyContent: "space-around"
+                }}>
+                {/* register with google */}
+                <Avatar
+                  sx={{
+                    width: "50px",
+                    height: "50px",
+                    marginRight: "10px",
+                  }}
+                >
+                  {images.googleIcon}
+                </Avatar>
+                {/* register with facebook */}
+                <Avatar
+                  sx={{
+                    width: "50px",
+                    height: "50px",
+                    marginRight: "10px",
+                  }}
+                >
+                  {images.facebookIcon}
+                </Avatar>
+                {/* register with x */}
+                <Avatar
+                  sx={{
+                    width: "50px",
+                    height: "50px",
+                    marginRight: "10px",
+                  }}
+                >
+                  {images.xIcon}
+                </Avatar>
+              </Box>
+            </Grid>
+          </Box>
+
         </Container>
       </ThemeProvider>
     </div>
