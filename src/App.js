@@ -12,6 +12,7 @@ import Note from "./components/Note";
 import Anonymous from "./features/Anonymous/Anonymous";
 import Profile_orther from "./features/Profile_orther/Profile_orther";
 import Test from "./pages/Test/Test";
+import AuthLayout from './features/Auth/layout';
 function App() {
   const RequireLogin = () => {
     return !checkJWT() ? <Outlet /> : <Login />;
@@ -40,10 +41,14 @@ function App() {
           <Route path='/anonymous' element={<Anonymous />} />
         </Route>
 
-        <Route path='/login' element={checkJWT() ? <Login /> : <Navigate to='/home' replace />} />
+        <Route path='/login' element={checkJWT() ? <AuthLayout /> : <Navigate to='/home' replace />} />
         <Route
           path='/register'
-          element={checkJWT() ? <Register /> : <Navigate to='/home' replace />}
+          element={checkJWT() ? <AuthLayout /> : <Navigate to='/home' replace />}
+        />
+        <Route
+          path='/forgot'
+          element={checkJWT() ? <AuthLayout /> : <Navigate to='/home' replace />}
         />
         <Route path='/test' element={<Test />} />
       </Routes>
