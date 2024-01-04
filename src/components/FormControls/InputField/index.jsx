@@ -27,11 +27,11 @@ function InputField(props) {
         control={form.control}
         id={name}
         render={({ field: { onChange } }) => (
-          <OutlinedInput name={name}  onChange={onChange} type="text" label={label} />
+          <OutlinedInput name={name}  onChange={onChange} type="text" label={label}/>
         )}
       />
       <FormHelperText>
-        {formState.errors[`${name}`] ? formState.errors[`${name}`].message : ""}
+        {formState.errors[`${name}`] ? formState.errors[`${name}`].message : ""} 
       </FormHelperText>
     </FormControl>
   );
