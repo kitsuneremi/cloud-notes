@@ -153,7 +153,6 @@ export default function AuthLayout() {
                                     maxWidth: "1500px",
                                     maxHeight: "615px",
                                     borderRadius: "10px",
-                                    minHeight: "350px;",
                                     backgroundColor: "white",
                                     boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px",
                                     padding: "10px 35px",
@@ -163,13 +162,6 @@ export default function AuthLayout() {
                             >
 
                                 {location.pathname == "/login" ? <Login /> : location.pathname == "/register" ? <Register /> : <Forgot />}
-                                {console.log(location.pathname)}
-
-
-
-
-
-
                             </Box>
                         </Grid>
                     </Grid>
