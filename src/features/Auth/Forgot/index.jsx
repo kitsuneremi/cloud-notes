@@ -4,19 +4,20 @@ import { Button, Link, Typography, Grid } from "@mui/material";
 import Box from "@mui/material/Box";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { useSnackbar } from "notistack";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import * as yup from "yup";
 import InputField from "../../../components/FormControls/InputField";
 import PasswordField from "../../../components/FormControls/PasswordField";
 import useWindowDimensions from "../../../customHook/WindowDimensions";
-import { login } from "../userSlice";
+import { resetPassword, updatePassword } from "../userSlice";
 
 import jwtDecode from "jwt-decode";
 import StorageKeys from "../../../constants/storage-keys";
 import { useNavigate, useLocation } from "react-router-dom";
 import images from "../../../assets/images";
+import axios from 'axios'
 
 function Forgot() {
 
@@ -25,42 +26,68 @@ function Forgot() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const { enqueueSnackbar } = useSnackbar();
-
-    const schema = yup
+    const getResetCodeObject = yup
         .object()
         .shape({
-            user_name: yup
+            gmail: yup
                 .string()
-                .required("Please enter your username")
-                .test(
-                    "should has at least 5 characters",
-                    "Please enter at least 5 characters ",
-                    (values) => {
-                        return values.length >= 5;
-                    }
-                ),
-            password: yup
-                .string()
-                .required("Please enter your password")
-                .min(6, "Please enter at least 6 characters"),
+                .required("Please enter your gmail"),
         })
         .required();
+
     const form = useForm({
         defaultValues: {
-            user_name: "",
-            password: "",
+            gmail: "",
         },
-        resolver: yupResolver(schema),
+        resolver: yupResolver(getResetCodeObject),
     });
-    const handleSubmit = async (values) => {
+
+    // const newPasswordForm = useForm({
+    //     defaultValues: {
+    //         password: "",
+    //         rePassword: ""
+    //     },
+    //     resolver: yupResolver(newPasswordObject)
+    // })
+
+    /**
+     * 
+     * @param {*} values 
+     */
+    const handleGetResetCode = async (values) => {
         try {
-            const action = login(values);
+            const action = resetPassword(values);
+            // test api
+            // const resultAction = axios.post("https://sakaivn.online/resetPasswork",{
+            //     gmail: values.gmail
+            // })
+
+            const resultAction = await dispatch(action);
+            console.log(resultAction);
+            unwrapResult(resultAction);
+            enqueueSnackbar("email send successfully", { variant: "success" });
+            // setTimeout(() => {
+            //     if (location.pathname === "/login") navigate("/home");
+            //     else document.location.reload();
+            // }, 1000);
+        } catch (e) {
+            enqueueSnackbar(e.message, { variant: "error" });
+        }
+    }
+
+    const handleConfirmCode = (values) => {
+        console.log(values)
+    }
+
+    const handleUpdatePasswordDone = async (values) => {
+        try {
+            const action = updatePassword(values);
 
             const resultAction = await dispatch(action);
             console.log(resultAction);
             unwrapResult(resultAction);
 
-            enqueueSnackbar("Logged in successfully", { variant: "success" });
+            enqueueSnackbar("password change successfully", { variant: "success" });
             setTimeout(() => {
                 if (location.pathname === "/login") navigate("/home");
                 else document.location.reload();
@@ -90,6 +117,13 @@ function Forgot() {
         // Xử lý kết quả đăng nhập thất bại ở đây
     };
 
+    /**
+     * Send code to the target gmail
+     */
+    const handleSendCode = () => {
+
+    }
+
     return (
         <Box sx={{ display: "flex" }}>
             <Box
@@ -101,24 +135,30 @@ function Forgot() {
                 }}
             >
                 <form
-                    style={{ display: "flex", flexDirection: "column" }}
-                    onSubmit={form.handleSubmit(handleSubmit)}
-                >
-                    <InputField label='User name or gmail ' name='user_name' form={form} />
-                    <Box sx={{
+                    style={{
                         display: "flex",
-                        gap: "20px"
-                    }}>
-                        <Button
-                            size='large'
-                            sx={{ marginTop: 1, color: "#fff", backgroundColor: "#3A4BE0", flexShrink: 0, marginBlock: "15px"}}
-                            type='submit'
-                        >
-                            Get code
-                        </Button>
-                        <InputField label='Enter code' name='code' form={form} />
-                    </Box>
+                        flexDirection: "column",
+                    }}
+                    onSubmit={form.handleSubmit(handleGetResetCode)}
+                >
 
+                    <InputField label='User name or gmail ' name='gmail' form={form} />
+                    {/* <Box sx={{
+                            display: "flex",
+                            gap: "20px"
+                        }}>
+                            <Button
+                                size='large'
+                                sx={{ marginTop: 1, color: "#fff", backgroundColor: "#3A4BE0", flexShrink: 0, marginBlock: "15px" }}
+                                type="submit"
+
+                            >
+                                Get code
+                            </Button>
+
+                            <InputField label='Enter code' name='code' form={form} />
+
+                        </Box> */}
                     <Button
                         size='large'
                         sx={{ marginTop: 1, color: "#fff", backgroundColor: "#3A4BE0" }}
@@ -128,13 +168,40 @@ function Forgot() {
                     </Button>
                 </form>
 
+
+                {/* {
+                    !isGettingCode &&
+                    <form
+                        onSubmit={newPasswordForm.handleSubmit(handleUpdatePasswordDone)}
+                    >
+                        <Box sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "20px"
+                        }}>
+
+                            <input type="hidden" value={currentMailState.gmail} name="gmail" />
+                            <PasswordField name='Password' label='password' form={newPasswordForm} />
+                            <PasswordField name='rePassword' label='Retype password' form={newPasswordForm} />
+                        </Box>
+                        <Button
+                            size='large'
+                            sx={{ marginTop: 1, color: "#fff", backgroundColor: "#3A4BE0" }}
+                            type='submit'
+                        >
+                            Change password
+                        </Button>
+                    </form>
+                } */}
+
+
                 <Box sx={{ textAlign: "center", marginTop: "26px" }}>
                     <Link href='/login' underline='hover' color='#000' fontWeight='600'>
                         Back to login
                     </Link>
                 </Box>
             </Box>
-        </Box>
+        </Box >
     )
 }
 
