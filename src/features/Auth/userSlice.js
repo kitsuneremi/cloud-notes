@@ -14,7 +14,22 @@ export const login = createAsyncThunk("user/login", async (payload) => {
   return { ...data.user, jwt: data.jwt };
 });
 
+//@kitsuneremi
+// payload {gmail, password, new_password}, dùng typescript thì đỡ cực hơn mấy khoản này ;~;
+export const updatePassword = createAsyncThunk("user/changePassword", async (payload) => {
+  const data = await userApi.changePassword(payload);
+  return {...data.user};
+});
 
+
+//@kitsuneremi
+/**
+ * @param {Object} payload - Accepts payload {gmail: string}
+ */
+export const resetPassword = createAsyncThunk("user/resetPassword", async (payload) => {
+  const data = await userApi.resetPassword(payload);
+  return { data };
+});
 
 export const profileUser = createAsyncThunk('profileUser', async (userId) => {
   
@@ -105,6 +120,8 @@ const userSlice = createSlice({
       })
       .addCase(profileUser.fulfilled, (state, action) => {
         state.current.profile = action.payload;
+      }).addCase(resetPassword.fulfilled, (state, action) => {
+
       })
       .addCase(updateProfile.fulfilled, (state, action) => {
         state.current = { ...state.current, ...action.payload };
