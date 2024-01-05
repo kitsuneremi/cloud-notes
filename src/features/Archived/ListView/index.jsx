@@ -66,11 +66,11 @@ function ListView({
 
   return (
     <Box
-      className='root'
+      className='root tiny-scrollbar'
       sx={{
         minWidth: "250px",
-        width: "calc(40% - 250px)",
-        height: "80vh",
+        width: "calc(40% - 150px)",
+        height: "90dvh",
         overflowY: "scroll",
       }}
     >
@@ -150,8 +150,6 @@ function ListView({
           ))
           : data.slice(0, 50).map((item, index) => (
             <div key={index}>
-
-
               <Button
                 sx={{
                   backgroundColor: `rgba(${item.color.r},${item.color.g},${item.color.b},${item.color.a})`,
