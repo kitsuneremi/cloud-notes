@@ -128,7 +128,7 @@ console.log(res);
       }}
     >
       {isSubmitting && <LinearProgress className='pg-load' />}
-      <Box sx={{ height: "100%", padding: "10px 20px 0px 20px" }}>
+      <Box sx={{ height: "100%", padding: "10px 10px 0px 10px" }}>
         <Box
           sx={{
             display: "flex",
