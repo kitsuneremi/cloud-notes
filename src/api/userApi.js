@@ -53,7 +53,6 @@ const userApi = {
   },
 
   updateProfile(userId, data) {
-    console.log("data in APIupdateProfile:", data);
     const url = `/profile/change_Profile/${userId}`;
     return axiosClient.patch(url, data);
   },
@@ -68,7 +67,6 @@ const userApi = {
   },
   resetPassword(payload) {
     const url = `/resetPasswork`;
-    console.log(payload);
     return axiosClient.options(url, payload);
   },
   logout(id){
