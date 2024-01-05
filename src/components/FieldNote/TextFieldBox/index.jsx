@@ -106,6 +106,9 @@ function TextFieldBox({ bg, handleNoteForm, isSubmitting, cx = "", tt = "", acti
             paddingTop: "20px",
             minHeight: "80vh",
             overflowY: "scroll",
+            "-webkit-scrollbar": {
+              width: "3px"
+            },
             "&>textarea": {
               height: "100%",
             },
