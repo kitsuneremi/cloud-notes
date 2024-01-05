@@ -44,6 +44,9 @@ function Home(props) {
   const [user, setUser] = useState(
     useSelector((state) => state.user.current) || JSON.parse(localStorage.getItem("user"))
   );
+  useEffect(() => {
+    console.log(user)
+  },[user])
   const usergg = jwtDecode(localStorage.getItem(StorageKeys.TOKEN));
   const [sharedNoteId, setSharedNoteId] = useState(null);
   const [isLogin, setIsLogin] = useState(false);
