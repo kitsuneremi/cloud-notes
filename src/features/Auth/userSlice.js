@@ -75,7 +75,7 @@ export const logoutUser = createAsyncThunk("user/logout", async (_, { getState }
     console.log(a);
     localStorage.removeItem(StorageKeys.USER);
     localStorage.removeItem(StorageKeys.TOKEN);
-    return { id: 10 }; // Cập nhật trạng thái người dùng sau khi logout
+    return { id: -1 }; // Cập nhật trạng thái người dùng sau khi logout
   } catch (error) {
     throw new Error("Error logging out");
   }
@@ -83,7 +83,7 @@ export const logoutUser = createAsyncThunk("user/logout", async (_, { getState }
 const userSlice = createSlice({
   name: "user",
   initialState: {
-    current: JSON.parse(localStorage.getItem(StorageKeys.USER)) || { id: 10 },
+    current: JSON.parse(localStorage.getItem(StorageKeys.USER)),
     setting: {},
   },
   reducers: {
