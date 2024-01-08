@@ -15,106 +15,120 @@ import { login } from "./userSlice";
 
 import jwtDecode from "jwt-decode";
 import StorageKeys from "./../../constants/storage-keys";
-import { useNavigate,useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import "./Login/index.scss";
 import images from "./../../assets/images";
 import Login from './Login'
 import Register from './Register';
 import Forgot from './Forgot';
+
+
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemText from '@mui/material/ListItemText';
+import MenuItem from '@mui/material/MenuItem';
+import Menu from '@mui/material/Menu';
+
+
+const options = [
+    <a href='' className="">ABOUT SAMNOTE</a>,
+    <a href='/feature' className="">FEATURE</a>,
+    <a href='' className="">FOR INDIVIDUAL</a>,
+    <a href='' className="">FOR GROUP</a>,
+    <a href='/help' className="">HELP</a>
+];
+
 export default function AuthLayout() {
     const location = useLocation();
-    
+    const [anchorEl, setAnchorEl] = React.useState(null);
+    const [selectedIndex, setSelectedIndex] = React.useState(1);
+    const open = Boolean(anchorEl);
+    const handleClickListItem = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleMenuItemClick = (event, index) => {
+        setSelectedIndex(index);
+        setAnchorEl(null);
+    };
+
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
     return (
         <>
-            <div className='container'>
-                <div className='navbar'>
-                    <a href='' style={{ display: "flex" }}>
-                        <img className='logo' src={images.logo} />
-                        <h2>SAMNOTE</h2>
-                    </a>
-                    <ul className='navbar-list-item'>
+            <div className='flex justify-between w-screen h-[80px] bg-white p-5 items-center'>
+                <a href='' className="flex items-center">
+                    <img className='logo' src={images.logo} />
+                    <p className="text-3xl font-bold text-black">SAMNOTE</p>
+                </a>
+                <div className="max-md:hidden">
+                    <ul className=' whitespace-nowrap max-w-[60vw] navbar-list-item'>
                         <li>
-                            <a href=''>ABOUT SAMNOTE</a>
+                            <a href='' className="">ABOUT SAMNOTE</a>
                         </li>
                         <li>
-                            <a href='/feature'>FEATURE</a>
+                            <a href='/feature' className="">FEATURE</a>
                         </li>
                         <li>
-                            <a href=''>FOR INDIVIDUAL</a>
+                            <a href='' className="">FOR INDIVIDUAL</a>
                         </li>
                         <li>
-                            <a href=''>FOR GROUP</a>{" "}
+                            <a href='' className="">FOR GROUP</a>{" "}
                         </li>
                         <li>
-                            <a href='/help'>HELP</a>
+                            <a href='/help' className="">HELP</a>
                         </li>
                     </ul>
-                    <Button
-                        sx={{
-                            color: "#000",
-                            fontSize: "0.9rem",
-                            marginLeft: "2px",
-                            ml: "1.8rem",
-                            "&:hover": {
-                                background: "transparent",
-                            },
-                        }}
-                    >
-                        Sign in
-                    </Button>
-                    <Button
-                        sx={{
-                            height: "35px",
-                            color: "#3A4BE0",
-                            fontSize: "0.9rem",
-                            border: "1px solid #3A4BE0",
-                            borderRadius: "12px",
-                            ml: "1.6rem",
-                            mt: "7px",
-                            "&:hover": {
-                                background: "transparent",
-                            },
-                        }}
-                    >
-                        Download
-                    </Button>
                 </div>
-            </div>
+                <div className="flex items-center gap-5">
+                    <button className="max-[400px]:hidden h-[35px] flex items-center font-semibold text-[#3A4BE0] border-spacing-x-3 border-[1px] rounded-xl border-[#3A4BE0] text-sm px-3 py-2">
+                        Download
+                    </button>
+                    <button onClick={handleClickListItem} className="md:hidden">menu</button>
+                </div>
+                <Menu
+                    id="lock-menu"
+                    anchorEl={anchorEl}
+                    open={open}
+                    onClose={handleClose}
+                    MenuListProps={{
+                        'aria-labelledby': 'lock-button',
+                        role: 'listbox',
+                    }}
+                >
+                    <MenuItem
+                        key={-1}
+                        selected={-1 === selectedIndex}
+                    >
+
+                        <a href="/download" className="">Download app</a>
+                    </MenuItem>
+                    {options.map((option, index) => (
+                        <MenuItem
+                            key={index}
+                            selected={index === selectedIndex}
+                        >
+                            {option}
+                        </MenuItem>
+                    ))}
+                </Menu>
+            </div >
             <Box
                 sx={{
-                    height: "600px",
-                    width: "100%",
+                    height: "100dvh",
+                    width: "100vw",
                     backgroundSize: "cover",
                     backgroundPosition: "center",
                     backgroundImage: `url(${images.bgrLogin})`,
                 }}
             >
                 <Box height='100%'>
-                    <Grid
-                        container
-                        item
-                        xs={12}
-                        spacing={2}
-                        sx={{
-                            display: "flex",
-                            alignItems: "center",
-                            height: "100%",
-                        }}
-                    >
-                        <Grid
-                            item
-                            xs={6}
-                            sx={{
-                                justifyContent: "center",
-                                display: "flex",
-                            }}
-                        >
-                            <Box
-                                sx={{
-                                    width: "68%",
-                                    display: "flex",
-                                }}
-                            >
+                    <div className="flex max-md:flex-col items-center justify-around max-md:justify-stretch h-full">
+
+                        {/* SAMNOTE describe */}
+                        <div className="justify-center flex md:w-1/2 max-md:h-1/3">
+                            <div className="w-[90%] flex items-center">
                                 <img
                                     style={{
                                         width: "60px",
@@ -143,58 +157,46 @@ export default function AuthLayout() {
                                         Create Free Notes, Calendar Reminders, Group Chat, Share Notes With AI
                                     </Typography>
                                 </Box>
-                            </Box>
-                        </Grid>
-                        <Grid item xs={6} direction='row' justifyContent='center' alignItems='stretch'>
-                            <Box
-                                sx={{
-                                    width: "70%",
-                                    minWidth: "400px",
-                                    maxWidth: "1500px",
-                                    maxHeight: "615px",
-                                    borderRadius: "10px",
-                                    backgroundColor: "white",
-                                    boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px",
-                                    padding: "10px 35px",
-                                    overflow: "hidden auto",
-                                }}
-                                className='box-container'
-                            >
+                            </div>
+                        </div>
+
+                        {/* login/register/forgot form container */}
+                        <div className="items-stretch max-md:items-start flex justify-center">
+                            <div className='box-container w-[70%] min-[400px]:min-w-[400px] max-w-[1500px] max-h-[380px] bg-white shadow-xl py-[15px] px-[35px] overflow-auto rounded-lg'>
 
                                 {location.pathname == "/login" ? <Login /> : location.pathname == "/register" ? <Register /> : <Forgot />}
-                            </Box>
-                        </Grid>
-                    </Grid>
+                            </div>
+                        </div>
+                    </div>
                 </Box>
             </Box>
-            <Box
-                sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    margin: "10px 200px",
-                    alignItems: "center",
-                }}
-            >
-                <Box display='flex' alignItems='center'>
-                    <img className='logo' src={images.logo} />
+            {/* footer */}
+            <div className="flex sm:gap-0 md:gap-5 max-sm:flex-col px-2 py-5">
+                <div className="flex max-md:justify-around gap-5 items-center max-sm:w-full w-3/4">
+                    {/* logo */}
+                    <div className="flex gap-3 items-center">
+                        <img className='logo' src={images.logo} />
+                        <Typography
+                            sx={{
+                                fontSize: "1.3rem",
+                                fontWeight: "500",
+                            }}
+                        >
+                            SAMNOTE
+                        </Typography>
+                    </div>
+
                     <Typography
                         sx={{
-                            fontSize: "1.3rem",
-                            fontWeight: "500",
+                            fontSize: "1.2rem",
+                            fontWeight: "550",
                         }}
                     >
-                        SAMNOTE
+                        Now we have mobile version
                     </Typography>
-                </Box>
-                <Typography
-                    sx={{
-                        fontSize: "1.2rem",
-                        fontWeight: "550",
-                    }}
-                >
-                    Now we have mobile version for this app
-                </Typography>
+                </div>
                 <Button
+                    className="max-sm:w-full w-1/4"
                     sx={{
                         height: "35px",
                         color: "#3A4BE0",
@@ -209,7 +211,7 @@ export default function AuthLayout() {
                 >
                     Download
                 </Button>
-            </Box>
+            </div>
         </>
     )
 }
