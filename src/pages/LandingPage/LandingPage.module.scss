@@ -64,6 +64,7 @@
 
     .item {
       cursor: pointer;
+      white-space: nowrap;
       line-height: 2;
     }
     .item:hover:not(:last-child) {

@@ -134,9 +134,6 @@ export default function LandingPage() {
               <div className={cx("item", "login")}>
                 <Link to='/login'>Log in</Link>
               </div>
-              <div className={cx("item", "signup")}>
-                <Link to='/register'>Sign up</Link>
-              </div>
             </>
           )}
         </div>

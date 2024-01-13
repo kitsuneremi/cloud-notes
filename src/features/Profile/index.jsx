@@ -14,6 +14,7 @@ import Message from "../../components/Message/Message";
 import { profileUser } from "../../features/Auth/userSlice";
 import { checkJWT } from "../../constants";
 import ListView from "../Archived/ListView/index";
+import ListNoteRender from "src/components/OtherProfile/ListNoteRender";
 function Profile({ usergg, data, handleDelNote, setArchivedData, toolsNote }) {
 	const theme = createTheme({
 		components: {
@@ -77,7 +78,7 @@ function Profile({ usergg, data, handleDelNote, setArchivedData, toolsNote }) {
 	const [profileInfo, setProfileInfo] = useState([]);
 	const [limitedDataPrv, setLimitedDataPrv] = useState([]);
 	const [limitedDataPbl, setLimitedDataPbl] = useState([]);
-	useEffect(() => {console.log(limitedDataPbl)},[limitedDataPbl])
+	useEffect(() => { console.log(limitedDataPbl) }, [limitedDataPbl])
 	const [toggleData, setToggleData] = useState([]);
 	const [maxRecordsToShow, setMaxRecordsToShow] = useState(12);
 	const [togle_Message, set_togle_Message] = useState(false);
@@ -142,6 +143,7 @@ function Profile({ usergg, data, handleDelNote, setArchivedData, toolsNote }) {
 			let sorted = res.note.sort((a, b) => new Date(b.createAt) - new Date(a.createAt));
 
 			setProfileInfo(res.user);
+			console.log(res.user);
 
 			setLimitedDataPrv(sorted.filter((e) => !Boolean(e.notePublic)).slice(0, maxRecordsToShow));
 			setLimitedDataPbl(sorted.filter((e) => Boolean(e.notePublic)).slice(0, maxRecordsToShow));
@@ -406,125 +408,21 @@ function Profile({ usergg, data, handleDelNote, setArchivedData, toolsNote }) {
 						}
 						alt='note'
 					/>
-					{/* 
-					<Box
-						className='boxNav'
-						sx={{
-						display: "flex",
-						alignItems: "center",
-						gap: "25%",
-						position: "absolute",
-						top: "10%",
-						marginLeft: "20%",
-						}}
-					>
-						<Box
-							className='boxNav2'
-							sx={{
-								height: "65px",
-								display: "flex",
-								justifyContent: "space-around",
-								padding: "20px 24px",
-								backgroundColor: "rgba(255, 255, 255, 0.4)",
-
-								gap: "30px",
-								color: "#fff",
-
-								alignItems: "center",
-								borderRadius: "32px",
-							}}
-						>
-					<Link to={"/"}>
-						<Box>
-						<Typography
-							sx={{
-							fontSize: "22px",
-							fontWeight: "600",
-							"&:hover": {
-								cursor: "pointer",
-							},
-							}}
-						>
-							SAMNOTES
-						</Typography>
-						</Box>
-					</Link>
-					<Box
-						className='BoxNav3'
-						sx={{
-						display: "flex",
-						justifyContent: "space-around",
-						gap: "90px",
-						width: "29rem",
-						fontSize: "1.2rem",
-						fontWeight: "400",
-						"& .MuiTypography-body1:hover": {
-							cursor: "pointer",
-						},
-						}}
-					>
-						<Typography variant='body1'>Help</Typography>
-						<Typography variant='body1'>Home</Typography>
-						<Typography variant='body1'>Contact Us</Typography>
-						<Typography variant='body1'>Blog</Typography>
-					</Box>
-					</Box>
-						<Box
-							sx={{
-								position: "relative",
-								// top: "10px",
-								width: "48px",
-								height: "48px",
-								position: "relative",
-								cursor: "pointer",
-							}}
-							className='Message'
-						>
-						<img onClick={handle_message} src={messImg}></img>
-						<div className='numberMessIcon'>1</div>
-						<Message listUserOnline={userOnline} togle={togle_Message} />
-						</Box>
-					</Box> */}
 					{/* profile top option */}
-					<Box
-						position={"absolute"}
-						sx={
-							{
-								top: "5%",
-								right: "5%",
-								display: "flex",
-								gap: "20px",
-								padding: "0 20px",
-								backgroundColor: "rgba(0, 0, 0, 0.2)",
-								alignItems: "center",
-							}
-						}
+					<div className="absolute top-[5%] right-[5%] flex gap-5 px-5 py-2 rounded-sm bg-[rgba(0, 0, 0, 0.2)] items-center"
+						style={{ backgroundColor: "rgba(0, 0, 0, 0.3)" }}
 					>
 						{/* hello text */}
-						<Box sx={
-							{
-								display: "flex",
-								flexDirection: "column",
-								gap: "10px",
-								color: "#fff",
-							}
-						}>
-							<h2>hello {user.name}</h2>
-							<h3>2/1/2024</h3>
-						</Box>
+						<div className="flex flex-col gap-2 text-black items-end">
+							<p className="text-2xl font-bold text-slate-200">hello {user.name}</p>
+							<p className="text-slate-200">{new Date().getDay() + "/" + new Date().getMonth() + 1 + "/" + new Date().getFullYear()}</p>
+						</div>
 						{/* missing calendar icon */}
-					</Box>
+					</div>
 				</div>
 
 				{/* profile detail box*/}
-				<Box
-					sx={{
-						background: "transparent",
-						position: "relative",
-						margin: "0 3%",
-					}}
-				>
-
+				<div className="bg-transparent relative mx-[3%]">
 					<Box
 						className='gapProfile'
 						sx={{
@@ -537,14 +435,12 @@ function Profile({ usergg, data, handleDelNote, setArchivedData, toolsNote }) {
 						}}
 					>
 						{/* profile avatar */}
-						<img
-							style={{ borderRadius: "50%", height: "111px", width: "111px" }}
-							src={
-								user.Avarta ||
-								usergg.picture ||
-								"https://i.pinimg.com/736x/e0/7a/22/e07a22eafdb803f1f26bf60de2143f7b.jpg" ||
-								profileInfo.Avarta
-							}
+						<img className="rounded-full w-28 aspect-square" src={
+							user.Avarta ||
+							usergg.picture ||
+							"https://i.pinimg.com/736x/e0/7a/22/e07a22eafdb803f1f26bf60de2143f7b.jpg" ||
+							profileInfo.Avarta
+						}
 						></img>
 						{/* profile name */}
 						<Box>
@@ -558,28 +454,6 @@ function Profile({ usergg, data, handleDelNote, setArchivedData, toolsNote }) {
 								{user.gmail}
 							</Typography>
 						</Box>
-						{/* <Stack
-              direction={"row"}
-              alignItems={"center"}
-              style={{
-                paddingLeft: 70 + "px",
-              }}
-            >
-              <input
-                className='inputSearchName'
-                value={searchUser}
-                onChange={(e) => setSearchUser(e.target.value)}
-                placeholder='Tìm kiếm tên/Email'
-                style={{}}
-              />
-              <SearchIcon
-                className='sicon'
-                style={{
-                  fontSize: 38 + "px",
-                  color: "#1d1d1d",
-                }}
-              />
-            </Stack> */}
 					</Box>
 
 
@@ -672,68 +546,13 @@ function Profile({ usergg, data, handleDelNote, setArchivedData, toolsNote }) {
               </>
             )}
           </Box> */}
-					<Box
-						sx={{
-							paddingTop: "28px",
-							paddingLeft: "37px",
-							backgroundColor: "#fff"
-						}}>
-						<Box sx={{
-							width: "100%",
-							height: "90px",
-							display: "flex",
-							flexDirection: "column",
-							gap: "8px"
 
-						}}>
-							<Box sx={{
-								display: "flex",
-								justifyContent: "space-between",
-								width: "95%",
-							}}>
-								<p style={{ color: "#888", fontSize: "32px", fontWeight: 700, lineHeight: "68.75%", letterSpacing: "-0.4" }}>Latest Public Notes</p>
-								<p>...</p>
-							</Box>
-							<Box sx={{
-								display: "flex",
-								gap: "20px",
-							}}>
-								<p style={{
-									color: "#496EF1",
-									fontFamily: "Roboto",
-									fontSize: "28px",
-									fontStyle: "normal",
-									fontWeight: 400,
-									lineHeight: "78.571%",
-									letterSpacing: "-0.4px",
-									textDecoration: "underline"
-								}}>Recent</p>
-								<p style={{
-									color: "#888",
-									fontFamily: "Roboto",
-									fontSize: "28px",
-									fontStyle: "normal",
-									fontWeight: 400,
-									lineHeight: "78.571%",
-									letterSpacing: "-0.4px"
-								}}>Recommended</p>
-							</Box>
-						</Box>
-					</Box>
-
-					{/* note */}
-					<Box display="grid" gridTemplateColumns="2fr 1fr" gridTemplateRows="auto auto" gap={2} sx={{ marginTop: "40px" }}>
-						{/* first box */}
-						{FirstBox(limitedDataPbl, user)}
-
-						{/* second box */}
-						<Box p={2} color="white" sx={{ backgroundColor: "#fff4ba", borderRadius: "12px", padding: "12px 6px", border: "1px solid #E81313" }}>
-							<Box sx={{
-								display: "flex",
-								justifyContent: "space-between",
-								marginBottom: "10px",
-								alignItems: "center"
-							}}>
+					<div className="flex max-xl:flex-col-reverse gap-5">
+						<div className="xl:w-2/3 w-full min-h-96 h-fit">
+							<ListNoteRender listData={limitedDataPbl} user={user} />
+						</div>
+						<div className="bg-[#fff4ba] rounded-[12px] py-[12px] border-[1px solid #E81313] w-[96%] mx-[2%] xl:w-1/3 px-5 mr-5">
+							<div className="flex justify-between mb-[10px] items-center">
 								<p style={{
 									color: "#888",
 									fontFamily: "Roboto",
@@ -748,7 +567,7 @@ function Profile({ usergg, data, handleDelNote, setArchivedData, toolsNote }) {
 									<path d="M19 13C19.5523 13 20 12.5523 20 12C20 11.4477 19.5523 11 19 11C18.4477 11 18 11.4477 18 12C18 12.5523 18.4477 13 19 13Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
 									<path d="M5 13C5.55228 13 6 12.5523 6 12C6 11.4477 5.55228 11 5 11C4.44772 11 4 11.4477 4 12C4 12.5523 4.44772 13 5 13Z" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
 								</svg>
-							</Box>
+							</div>
 							{/* content */}
 							<div>
 								<p style={{
@@ -763,23 +582,9 @@ function Profile({ usergg, data, handleDelNote, setArchivedData, toolsNote }) {
 									Lorem ipsum dolor sit, amet consectetur adipisicing elit. Sint, sequi? Corporis, eum enim? Quod in est quae necessitatibus vero, temporibus incidunt, fugit aliquid, deleniti provident officia cumque itaque asperiores neque.
 								</p>
 							</div>
-						</Box>
-						<Box p={2} bgcolor="success.main" color="white">
-							Box 4
-						</Box>
-						{FourthBox()}
-						<Box p={2} bgcolor="error.main" color="white">
-							Box 6
-						</Box>
-						<Box p={2} bgcolor="error.main" color="white">
-							Box 6
-						</Box>
-
-						<Box gridColumn="span 2" p={2} bgcolor="primary.main" color="white">
-							Box 1
-						</Box>
-					</Box>
-				</Box>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 	);
