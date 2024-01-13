@@ -18,6 +18,7 @@ import StorageKeys from "../../../constants/storage-keys";
 import { useNavigate,useLocation } from "react-router-dom";
 import "./index.scss";
 import images from "../../../assets/images";
+import axios from 'axios'
 
 Login.propTypes = {};
 
@@ -57,8 +58,8 @@ function Login(props) {
   const handleSubmit = async (values) => {
     try {
       const action = login(values);
-
-      const resultAction = await dispatch(action);
+      
+      const resultAction = dispatch(action);
       console.log(resultAction);
       unwrapResult(resultAction);
 
@@ -68,6 +69,7 @@ function Login(props) {
         else document.location.reload();
       }, 1000);
     } catch (e) {
+
       enqueueSnackbar(e.message, { variant: "error" });
     }
   };

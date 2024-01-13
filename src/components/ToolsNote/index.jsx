@@ -67,7 +67,9 @@ function ToolsNote({
   const [showPassword, setShowPassword] = useState(false);
   const [noteData, setNoteData] = useState(null);
   const navigate = useNavigate();
-  const shareNoteId = useContext(ShareNoteContext);
+  const shareNoteId = () => {
+    
+  }
   // useEffect(() => {
   //   setDueAt(options.dueAt && dayjs(options.dueAt));
   //   setRemindAt(options.remindAt && dayjs(options.remindAt));
