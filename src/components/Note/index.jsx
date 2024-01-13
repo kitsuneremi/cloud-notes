@@ -18,6 +18,8 @@ import { Header } from "antd/es/layout/layout";
 import noteApi from "../../api/noteApi";
 import userApi from "../../api/userApi";
 import ToolsNote from "../ToolsNote";
+import SideBar from "../../components/SideBar";
+
 const Note = () => {
   const [data, setData] = useState(null);
   const [open, setOpen] = useState(false);
@@ -30,7 +32,6 @@ const Note = () => {
     navigator.clipboard.writeText("http://samnotes.online/note/" + noteId);
     enqueueSnackbar("Copied to Clipboard", { variant: "success" });
     handleClose();
-    console.log("Clipboard");
   };
 
   useEffect(() => {
@@ -55,41 +56,16 @@ const Note = () => {
     });
   }, []);
 
-  console.log(profile);
+  const handleNoteForm = () => {
+
+  }
+
   return (
     <>
-      <Box>
-        <div>
-          <Link to='/'>
-            <img src='./assets/logo_chua_tach_nen.png' alt='Cloudnote' />
-            SAMNOTES
-          </Link>
-        </div>
-      </Box>
+      <SideBar />
       {data && data ? (
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: "80%",
-            height: "70%",
-            backgroundColor: convertColor(data.color),
-            padding: "12px",
-            overflowY: "auto",
-          }}
-        >
-          <Box
-            sx={{
-              fontSize: "20px",
-              paddingBottom: "8px",
-              borderBottom: "1px solid #000",
-              marginBottom: "20px",
-            }}
-          >
-            {data.title}
-          </Box>
+        <div className={`flex-grow absolute top-0 right-0 p-[2%] overflow-auto w-[calc(100vw-250px)] h-full bg-[${convertColor(data.color)}]`}>
+          <div className="text-[20px] pb-2 border-b-2 border-black mb-5">{data.title}</div>
           {data.type !== "checklist" ? (
             <Box>{data.data}</Box>
           ) : (
@@ -108,7 +84,7 @@ const Note = () => {
             handleChangeNote={""}
             handleOptionsNote={""}
             handleDelNote={""}
-            handleNoteForm={""}
+            handleNoteForm={''}
             dataItem={""}
           />
           {data.type === "image" && (
@@ -136,19 +112,7 @@ const Note = () => {
               <Button onClick={clipboard}> COPY URL</Button>
             </DialogActions>
           </Dialog>
-          <Typography
-            variant='subtitle1'
-            sx={{
-              position: "relative",
-              top: "2%",
-              left: "60%",
-              fontWeight: "bold",
-              fontSize: "14px",
-            }}
-          >
-            Created by: {profile && profile.name}
-          </Typography>
-        </Box>
+        </div>
       ) : (
         <Box
           sx={{
