@@ -81,7 +81,7 @@ function Profile_orther({ data, handleDelNote, setArchivedData, toolsNote }) {
       return result.data;
     };
     api_profile().then((data) => {
-      setOtherProfile(data);
+      setOtherProfile(data.user);
       setLimitedData(data.note.slice(2, startIndex));
       // setUser(data.user);
       // setUserName(data.user.name);
@@ -129,8 +129,8 @@ function Profile_orther({ data, handleDelNote, setArchivedData, toolsNote }) {
             <div className="flex ml-[5%] items-center  gap-5">
               <img className="w-[80px] h-[80px] rounded-full" src={otherProfile.Avarta} />
               <div>
-                <p className="font-bold text-xl">{otherProfile.name ? otherProfile.name : 'tét'}</p>
-                <p className="">join at 26st , jul 2023</p>
+                <p className="font-bold text-xl">{otherProfile.name}</p>
+                <p className="">join at {otherProfile.createAccount}</p>
               </div>
             </div>
             <div className="flex items-center mr-[5%] text-2xl font-bold">
@@ -139,7 +139,7 @@ function Profile_orther({ data, handleDelNote, setArchivedData, toolsNote }) {
                 <DropdownMenuContent>
                   <DropdownMenuLabel>Action</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>Message</DropdownMenuItem>
+                  <DropdownMenuItem><Link to={'/message/'}>Message</Link></DropdownMenuItem>
                   <DropdownMenuItem>Add to group</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
