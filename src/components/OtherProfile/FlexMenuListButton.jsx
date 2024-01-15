@@ -27,7 +27,7 @@ export default function FlexMenu() {
             <div className="flex max-sm:overflow-x-scroll">
                 {options.map((option, index) => {
                     return (
-                        <button onClick={() => { if (index != selectedIndex()) { setSelectedIndex(index) } }} key={index} className={`px-3 py-2 ${selectedIndex == index ? 'relative text-blue-600 after:absolute after:w-full after:h-[2px] after:bg-blue-600 after:left-0 after:bottom-0 after:rounded-lg' : ''}`}>
+                        <button onClick={() => { if (index != selectedIndex) { setSelectedIndex(index) } }} key={index} className={`px-3 py-2 ${selectedIndex == index ? 'relative text-blue-600 after:absolute after:w-full after:h-[2px] after:bg-blue-600 after:left-0 after:bottom-0 after:rounded-lg' : ''}`}>
                             {option}
                         </button>
                     )
