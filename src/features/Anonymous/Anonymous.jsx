@@ -31,6 +31,7 @@ const Anonymous = () => {
   const messageInputRef = useRef(null)
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [targetMessageUserData, setTargetMessageUserData] = useState(null);
+  const [messageListData, setMessageListData] = useState([]);
 
   const [CountMessage, setCountMessage] = useState(0);
   const [getMessage, setGetMessageuser] = useState([]);
@@ -71,13 +72,11 @@ const Anonymous = () => {
   };
   useEffect(() => {
     setCountMessage(getMessage.length);
-    console.log(CountMessage);
     document.title = `Bạn đang có ${getMessage.length} tin nhắn`;
   }, [CountMessage]);
 
   useEffect(() => {
     const check = listUserOnline.filter(user => user.name.includes(inputUser));
-    console.log(check)
     setListInputUser(check);
     if (check.length >= 1) {
       setTogglSearch(!togglSearch);
@@ -101,23 +100,55 @@ const Anonymous = () => {
     });
   };
 
+  useEffect(() => {
+    console.log(users)
+  }, [users])
+
   //@kitsuneremi refresh message after change user
   useEffect(() => {
+    if (targetMessageUserData) {
+      axios.get(`https://sakaivn.online/message/chat-unknown/${users.id}`)
+        .then(res1 => {
+          const data1 = res1.data.data.filter(message => Number.parseInt(message.idSend) === users.id);
 
-  },[targetMessageUserData])
+          axios.get(`https://sakaivn.online/message/chat-unknown/${targetMessageUserData.id}`)
+            .then(res2 => {
+              const data2 = res2.data.data.filter(message => Number.parseInt(message.idReceive) === users.id);
+
+              // Gộp hai mảng
+              const mergedData = [...data1, ...data2];
+
+              // Sắp xếp mảng theo trường sendAt
+              const sortedData = mergedData.sort((a, b) => new Date(a.sendAt) - new Date(b.sendAt));
+              console.log(sortedData)
+              // Lưu vào state
+              setMessageListData(sortedData);
+            })
+            .catch(err => {
+              console.log(err);
+              setMessageListData([]);
+            });
+        })
+        .catch(err => {
+          console.log(err);
+          setMessageListData([]);
+        });
+
+    }
+  }, [targetMessageUserData])
 
   useEffect(() => {
     userApi.userOnline().then((res) => {
       const status = res.users.filter((user) => user.statesLogin === 1);
       setlistUserOnline(status);
     });
-  }, [messageContent]);
+  }, []);
 
   useEffect(() => {
     userApi.getMessage(users.id).then((data) => {
       setUserIdSend(data.data);
     });
-  }, [messageContent]);
+  }, []);
 
   useEffect(() => {
     if (messageInputRef.current)
@@ -134,13 +165,13 @@ const Anonymous = () => {
     const Content = getMessage.filter((mess) => mess.content.includes(searchContent));
     const received = UserIdSend.filter((mes) => mes.content.includes(searchContent));
     setListSearchUser(Content.concat(received));
-    if (listSearchUser.length >= 1) {
-      messageBoxRef.current.style.display = "none";
-      // document.querySelector(".Box_message").style.display = "none";
-    } else {
-      messageBoxRef.current.style.display = "block";
-      // document.querySelector(".Box_message").style.display = "block";
-    }
+    // if (listSearchUser.length >= 1) {
+    //   messageBoxRef.current.style.display = "none";
+    //   // document.querySelector(".Box_message").style.display = "none";
+    // } else {
+    //   messageBoxRef.current.style.display = "block";
+    //   // document.querySelector(".Box_message").style.display = "block";
+    // }
     // Content
     //   ? (document.querySelector(".Box_message").style.display = "none")
     //   : (document.querySelector(".Box_message").style.display = "block");
@@ -466,33 +497,29 @@ const Anonymous = () => {
           </header>
         </div> */}
           {/* message render */}
-          <div ref={messageBoxRef} className='absolute max-w-[800px] rounded-3xl mb-8 right-0 top-52'>
-            <>
+          <div ref={messageBoxRef} className='absolute w-full right-0 top-[80px] h-[calc(100%-160px)]'>
+            <div className="flex flex-col gap-2">
               {
-                UserOnlineId &&
-                getMessage.map(message => {
-                  return UserOnlineId.id == message.idSend ? (
-                    <div key={message.id} className="mt-1 flex flex-col items-center">
-                      <div className='mr-24 p-2 rounded-full flex mt-2'>
-                        <>
-                          <img className="w-16 aspect-square rounded-full" src={`${UserOnlineId.img || process.env.PUBLIC_URL + "/assets/user.png"}`} alt='' />
-                          <div className="bg-white text-black w-[450px] p-2 min-h-[50px] rounded-3xl ml-2">
-                            <div id={`${message.id}`}>
-                              <p className='contentMessage' id={message.id} style={{ fontWeight: 600 }}>
-                                {message.content}
-                              </p>
-                              <p>Đã gửi:{message.sendAt} </p>
-                            </div>
+                targetMessageUserData &&
+                messageListData.map(message => {
+                  return (
+                    <div key={message.id} className="flex flex-col items-center">
+                      <div className={`p-2 rounded-full w-fit max-w-[66%] flex gap-2 ${message.idSend == users.id ? 'flex-row-reverse self-end' : 'flex-row'} mt-2`}>
+                        <img className="w-16 aspect-square rounded-full" src={`${targetMessageUserData.img || process.env.PUBLIC_URL + "/assets/user.png"}`} alt='' />
+                        <div className="bg-white text-black p-3 min-h-[50px] rounded-3xl ml-2">
+                          <div className="flex flex-col gap-1">
+                            <p className={`font-bold text-xl ${message.idSend == users.id ? 'self-end' : ''}`} id={message.id}>
+                              {message.content}
+                            </p>
+                            <p className={`text-xs font-thin text-slate-500 ${message.idSend == users.id ? 'self-end' : ''}`}>{message.sendAt}</p>
                           </div>
-                        </>
+                        </div>
                       </div>
                     </div>
-                  ) : (
-                    <></>
                   )
                 })
               }
-            </>
+            </div>
             <>
               {
                 UserOnlineId &&
