@@ -664,6 +664,7 @@ const Anonymous = () => {
               <FaAngry size={32} color='red' />
               <FaMeh size={32} color='orange' />
             </div>
+            }
           </div>
           <div className="flex gap-4 items-center">
             {/* message input */}
