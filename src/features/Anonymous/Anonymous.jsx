@@ -20,18 +20,30 @@ import SearchIcon from "@mui/icons-material/Search";
 import { AiOutlineSearch } from "react-icons/ai";
 import { FaSmile, FaSadTear, FaGrin, FaDizzy, FaAngry, FaMeh } from "react-icons/fa";
 import { AiOutlineMore, AiFillMessage } from "react-icons/ai";
-
+import { useOnClickOutside } from "src/customHook/useOnClickOutside";
+import io from "socket.io-client";
+import { useEffectOnce } from "src/customHook/useEffectOnce";
 const options = [
   'All',
   'Recent',
+  'Blocked'
 ]
+
+const socket = io("https://lhvn.online").connect();
+
 const Anonymous = () => {
   //@kitsuneremi
   const messageBoxRef = useRef(null)
   const messageInputRef = useRef(null)
+  const interactIconRef = useRef(null)
+  const interactIconButtonRef = useRef(null)
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [targetMessageUserData, setTargetMessageUserData] = useState(null);
   const [messageListData, setMessageListData] = useState([]);
+  const [openInteractDropDown, setOpenInteractDropDown] = useState({ button: false, menu: false });
+
+  useOnClickOutside(interactIconRef, () => { setOpenInteractDropDown(prev => { return { menu: false, button: prev.button } }) })
+  useOnClickOutside(interactIconButtonRef, () => { setOpenInteractDropDown(prev => { return { menu: prev.menu, button: false } }) })
 
   const [CountMessage, setCountMessage] = useState(0);
   const [getMessage, setGetMessageuser] = useState([]);
@@ -70,6 +82,36 @@ const Anonymous = () => {
       });
     });
   };
+
+  useEffectOnce(() => {
+    const handleReceivedMessage = (data) => {
+      // setList((prev) => [...prev, data]);
+      console.log(data)
+    };
+
+    socket.on("receive_message", handleReceivedMessage);
+
+    return () => {
+      socket.off("receive_message", handleReceivedMessage);
+    };
+  });
+
+  const sendMessage = () => {
+    const data = {
+      room: `${users.id}${targetMessageUserData.id}`,
+      data:{
+        idSend: targetMessageUserData.id,
+        idReceive: users.id,
+        type: 'text',
+        state: '',
+        content: messageContent
+      }
+    };
+    socket.emit("send_message", data);
+    // setList((prev) => [...prev, data]);
+    setMessageContent("");
+  }
+
   useEffect(() => {
     setCountMessage(getMessage.length);
     document.title = `Bạn đang có ${getMessage.length} tin nhắn`;
@@ -83,41 +125,35 @@ const Anonymous = () => {
     }
   }, [inputUser]);
 
-  const HandleMessage = () => {
-    const messageAnoymous = document.querySelectorAll(".messageAnoymous");
-    messageAnoymous.forEach((el, index) => {
-      el.addEventListener("click", (e) => {
-        console.log(el.getAttribute("data-id"));
-        const dataId = el.getAttribute("data-id");
-        console.log(dataId);
-        const [checkUser] = listUserOnline.filter((user) => user.id == dataId);
-        console.log(checkUser);
-        setUserOnlineId(checkUser);
-      });
-    });
-    userApi.getMessage(UserOnlineId && UserOnlineId.id).then((data) => {
-      setGetMessageuser(data.data);
-    });
-  };
+  // const HandleMessage = () => {
+  //   const messageAnoymous = document.querySelectorAll(".messageAnoymous");
+  //   messageAnoymous.forEach((el, index) => {
+  //     el.addEventListener("click", (e) => {
+  //       console.log(el.getAttribute("data-id"));
+  //       const dataId = el.getAttribute("data-id");
+  //       console.log(dataId);
+  //       const [checkUser] = listUserOnline.filter((user) => user.id == dataId);
+  //       console.log(checkUser);
+  //       setUserOnlineId(checkUser);
+  //     });
+  //   });
+  //   userApi.getMessage(UserOnlineId && UserOnlineId.id).then((data) => {
+  //     setGetMessageuser(data.data);
+  //   });
+  // };
 
-  useEffect(() => {
-    console.log(users)
-  }, [users])
-
-  //@kitsuneremi refresh message after change user
+  //@kitsuneremi first load message whenever target changed
   useEffect(() => {
     if (targetMessageUserData) {
+      setMessageListData([]);
       axios.get(`https://sakaivn.online/message/chat-unknown/${users.id}`)
         .then(res1 => {
-          const data1 = res1.data.data.filter(message => Number.parseInt(message.idSend) === users.id);
-
+          const data1 = res1.data.data.filter(message => Number.parseInt(message.idReceive) === targetMessageUserData.id);
           axios.get(`https://sakaivn.online/message/chat-unknown/${targetMessageUserData.id}`)
             .then(res2 => {
-              const data2 = res2.data.data.filter(message => Number.parseInt(message.idReceive) === users.id);
-
+              const data2 = res2.data.data.filter(message => Number.parseInt(message.idSend) === users.id);
               // Gộp hai mảng
               const mergedData = [...data1, ...data2];
-
               // Sắp xếp mảng theo trường sendAt
               const sortedData = mergedData.sort((a, b) => new Date(a.sendAt) - new Date(b.sendAt));
               console.log(sortedData)
@@ -149,16 +185,6 @@ const Anonymous = () => {
       setUserIdSend(data.data);
     });
   }, []);
-
-  useEffect(() => {
-    if (messageInputRef.current)
-      messageInputRef.current.addEventListener("keydown", function (e) {
-        if (e.keyCode === 13) {
-          // console.log(1);
-          // sendMessage();
-        }
-      });
-  }, [messageInputRef.current]);
 
   //search
   useEffect(() => {
@@ -217,27 +243,27 @@ const Anonymous = () => {
   });
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
-  const sendMessage = () => {
-    // http://14.225.7.221:18011
-    const data = axios({
-      method: "POST",
-      url: `https://sakaivn.online/message/chat-unknown/${targetMessageUserData.id}`,
-      data: {
-        content: messageContent,
-        id: "",
-        idReceive: targetMessageUserData.id,
-        idSend: users.id,
-        sendAt: new Date().toISOString(),
-      },
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    data.then((datas) => {
-      setstatusMess(datas.data.message);
-    });
-    setMessageContent("");
-  };
+  // const sendMessage = () => {
+  //   // http://14.225.7.221:18011
+  //   const data = axios({
+  //     method: "POST",
+  //     url: `https://sakaivn.online/message/chat-unknown/${targetMessageUserData.id}`,
+  //     data: {
+  //       content: messageContent,
+  //       id: "",
+  //       idReceive: targetMessageUserData.id,
+  //       idSend: users.id,
+  //       sendAt: new Date().toISOString(),
+  //     },
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //     },
+  //   });
+  //   data.then((datas) => {
+  //     setstatusMess(datas.data.message);
+  //   });
+  //   setMessageContent("");
+  // };
 
   /// block message
   const handleBlock = () => {
@@ -286,7 +312,7 @@ const Anonymous = () => {
         <div className="flex max-sm:overflow-x-scroll">
           {options.map((option, index) => {
             return (
-              <button onClick={() => { if (index != selectedIndex) { setSelectedIndex(index) } }} key={index} className={`px-3 py-2 ${selectedIndex == index ? 'relative text-blue-600 after:absolute after:w-full after:h-[2px] after:bg-blue-600 after:left-0 after:bottom-0 after:rounded-lg' : ''}`}>
+              <button onClick={() => { if (index != selectedIndex) { setSelectedIndex(index) } }} key={index} className={`px-3 py-2 text-white ${selectedIndex == index ? 'relative text-blue-600 after:absolute after:w-full after:h-[2px] after:bg-blue-600 after:left-0 after:bottom-0 after:rounded-lg' : ''}`}>
                 {option}
               </button>
             )
@@ -307,7 +333,7 @@ const Anonymous = () => {
           {listData.map((data, index) => {
             return (
               <div className="flex justify-between" key={index}>
-                <div className="flex gap-4 items-center">
+                <div className="flex gap-4 items-center max-lg:flex-col max-lg:gap-2 max-lg:justify-start flex-1">
                   <div className="w-16 aspect-square relative">
                     <img className="w-full h-full rounded-full" src={data.img} alt="a picture" />
                     <div className="absolute w-4 h-4 bg-green-500 rounded-full bottom-1 right-1 border-[1px] border-white" />
@@ -334,7 +360,7 @@ const Anonymous = () => {
         <div className="flex justify-between items-center h-[65px]">
           <div className="flex gap-4 items-center">
             <img className="w-16 h-16" src={`${process.env.PUBLIC_URL + "/assets/andanh.png"}`} />
-            <p className="text-white text-3xl">Anonymous</p>
+            <p className="text-white text-3xl max-lg:hidden">Anonymous</p>
           </div>
           <SettingsIcon className="text-white text-3xl" />
         </div>
@@ -351,16 +377,11 @@ const Anonymous = () => {
             borderRadius: 12 + "px",
           }}
         >
-          <Stack direction='row' alignItems='center' justifyContent='center'>
-            <img
-              style={{
-                width: 45 + "px",
-                height: 45 + "px",
-              }}
-              src={`${process.env.PUBLIC_URL + "/assets/andanh.png"}`}
+          <div className="flex flex-row items-center justify-center max-lg:hidden">
+            <img className="w-[45px] aspect-square" src={`${process.env.PUBLIC_URL + "/assets/andanh.png"}`}
             ></img>
             <My_text variant='h5'>Anonymous</My_text>
-          </Stack>
+          </div>
           <My_text textAlign='center' variant='subtitle1'>
             You now in anonymous mode. You can chat with others anonymously
           </My_text>
@@ -498,14 +519,14 @@ const Anonymous = () => {
         </div> */}
           {/* message render */}
           <div ref={messageBoxRef} className='absolute w-full right-0 top-[80px] h-[calc(100%-160px)]'>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 overflow-y-auto">
               {
                 targetMessageUserData &&
                 messageListData.map(message => {
                   return (
-                    <div key={message.id} className="flex flex-col items-center">
-                      <div className={`p-2 rounded-full w-fit max-w-[66%] flex gap-2 ${message.idSend == users.id ? 'flex-row-reverse self-end' : 'flex-row'} mt-2`}>
-                        <img className="w-16 aspect-square rounded-full" src={`${targetMessageUserData.img || process.env.PUBLIC_URL + "/assets/user.png"}`} alt='' />
+                    <div key={message.id} className="flex flex-col items-center min-h-16">
+                      <div className={`p-2 rounded-full items-center w-fit max-w-[66%] flex gap-2 ${message.idSend == users.id ? 'flex-row-reverse self-end' : 'flex-row'} mt-2`}>
+                        <img className="w-16 h-16 rounded-full" src={`${targetMessageUserData.img || process.env.PUBLIC_URL + "/assets/user.png"}`} alt='' />
                         <div className="bg-white text-black p-3 min-h-[50px] rounded-3xl ml-2">
                           <div className="flex flex-col gap-1">
                             <p className={`font-bold text-xl ${message.idSend == users.id ? 'self-end' : ''}`} id={message.id}>
@@ -520,54 +541,6 @@ const Anonymous = () => {
                 })
               }
             </div>
-            <>
-              {
-                UserOnlineId &&
-                UserIdSend.map((message) => {
-                  return UserOnlineId.id == message.idReceive ? (
-                    <Stack mt={4} direction='column' alignItems='center'>
-                      <Stack
-                        style={{
-                          marginLeft: 100 + "px",
-                          backgroundColor: "#5BE260",
-                          padding: 10 + "px",
-                          borderRadius: 50 + "px",
-                        }}
-                        direction={"row"}
-                        mt={2}
-                      >
-                        <>
-                          <img
-                            style={{ width: 60 + "px", height: 60 + "px" }}
-                            src={`${process.env.PUBLIC_URL + "/assets/anoymous.png"}`}
-                            alt=''
-                          ></img>
-                          <Box
-                            classList={"sent"}
-                            ml={2}
-                            sx={{
-                              width: 450 + "px",
-                              padding: 10 + "px",
-                              minHeight: 50 + "px",
-                              borderRadius: 24 + "px",
-                            }}
-                          >
-                            <div>
-                              <p id={message.id} className='contentMessage' style={{ fontWeight: 600 }}>
-                                {message.content}
-                              </p>
-                              <p>Đã gửi:{message.sendAt} </p>
-                            </div>
-                          </Box>
-                        </>
-                      </Stack>
-                    </Stack>
-                  ) : (
-                    ""
-                  );
-                })
-              }
-            </>
             <div>
               {file && (
                 <div>
@@ -580,55 +553,17 @@ const Anonymous = () => {
                     href={URL.createObjectURL(file)}
                     download
                   >
-                    {" "}
                     Download
                   </a>
                 </div>
               )}
             </div>
           </div>
-          {/* message render end */}
-          {/* <div>
-            {listSearchUser &&
-              listSearchUser.map((mess) => {
-                return (
-                  <a
-                    href={`#${mess.id}`}
-                    onClick={() => {
-                      document.querySelector(".Box_message").style.display = "block";
-                      console.log(document.getElementById(`${mess.id}`));
-                      document.getElementById(`${mess.id}`).style.backgroundColor = "#000";
-                      document.getElementById(`${mess.id}`).style.color = "#fff";
-                      document.getElementById(`${mess.id}`).style.borderRadius = 12 + "px";
-                      setListSearchUser("");
-                    }}
-                  >
-                    <p
-                      style={{
-                        position: "absolute",
-                        maxWidth: 800 + "px",
-                        borderRadius: 32 + "px",
-                        marginBottom: 30 + "px",
-                        color: "#fff",
-                        left: 500,
-                        top: 200,
-                      }}
-                    >
-                      {mess.content}
-                    </p>
-                  </a>
-                );
-              })}
-          </div> */}
         </div>
 
-        {targetMessageUserData && <div className='w-full flex justify-around items-center h-20 absolute bottom-0 left-0 bg-white bg-opacity-20'>
+        {targetMessageUserData && <div className='w-full flex justify-between px-5 items-center h-20 absolute bottom-0 left-0 bg-white bg-opacity-20'>
           <div className="flex gap-4 items-center">
-            <img
-              style={{ width: 60 + "px", height: 60 + "px" }}
-              src={`${process.env.PUBLIC_URL + "/assets/anoymous.png"}`}
-              alt=''
-            />
+            <img className="w-16 h-16 max-lg:hidden" src={`${process.env.PUBLIC_URL + "/assets/anoymous.png"}`} />
             {/* drop file to send */}
             <div {...getRootProps()}>
               {isDragActive ? (
@@ -653,33 +588,23 @@ const Anonymous = () => {
               )}
             </div>
             {/* react drop zone end */}
-            <div className="cursor-pointer mr-1 relative" onClick={() => { setToggleIcon(!toggleIcon) }}>
+            <div ref={interactIconButtonRef} className="cursor-pointer mr-1 relative" onClick={() => { setToggleIcon(!toggleIcon) }} onClick={() => { setOpenInteractDropDown({ button: true, menu: false }) }}>
               <FaSmile size={35} color='#FFF' />
             </div>
-            <div className={`flex ${toggleIcon ? "block" : "none"} absolute top-[-205px] flex-wrap w-52 h-52 bg-white`}>
-              <FaSmile size={32} color='yellow' />
-              <FaSadTear size={32} color='blue' />
-              <FaGrin size={32} color='green' />
-              <FaDizzy size={32} color='purple' />
-              <FaAngry size={32} color='red' />
-              <FaMeh size={32} color='orange' />
-            </div>
+            {(openInteractDropDown.button || openInteractDropDown.menu) &&
+              <div ref={interactIconRef} onMouseDown={() => { setOpenInteractDropDown(prev => { return { menu: true, button: prev.button } }) }} className={`flex absolute top-[-90px] gap-2 p-2 flex-wrap w-52 h-fit bg-white`}>
+                <FaSmile size={32} color='yellow' />
+                <FaSadTear size={32} color='blue' />
+                <FaGrin size={32} color='green' />
+                <FaDizzy size={32} color='purple' />
+                <FaAngry size={32} color='red' />
+                <FaMeh size={32} color='orange' />
+              </div>
             }
           </div>
-          <div className="flex gap-4 items-center">
+          <div className="flex gap-4 items-center flex-1 justify-end">
             {/* message input */}
-            <TextField
-              className={"inputMessageAnoymous"}
-              style={{
-                backgroundColor: "#D3D3D3",
-                width: 550 + "px",
-                borderRadius: 32 + "px",
-              }}
-              ref={messageInputRef}
-              placeholder='Give a comment'
-              value={messageContent}
-              onChange={(e) => setMessageContent(e.target.value)}
-            ></TextField>
+            <input ref={messageInputRef} value={messageContent} onChange={e => setMessageContent(e.target.value)} className="bg-slate-200 text-2xl px-2 rounded-3xl max-lg:w-2/3 xl:w-1/2 h-12" />
             <button className="w-16 h-16 p-2" onClick={sendMessage}>
               <img
                 className=""
