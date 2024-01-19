@@ -1,15 +1,19 @@
-import { useCallback, useState, useEffect, useRef } from "react";
+import React, { useCallback, useState, useEffect, useRef } from "react";
 import axios from "axios";
 import * as yup from 'yup';
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import StorageKeys from "../../constants/storage-keys";
 import jwtDecode from "jwt-decode";
-import { Box, createTheme, Typography, Button, Stack, TextField } from "@mui/material";
+import { Box, createTheme, Typography, Stack, TextField } from "@mui/material";
+import MenuItem from '@mui/material/MenuItem';
 import InputField from "../../components/FormControls/InputField";
 import { SendOutlined } from '@ant-design/icons'
 import { useOnClickOutside } from "../../customHook/useOnClickOutside";
-
+import { useCopyToClipboard } from "src/customHook/useCopyToClipboard";
+import { FaCopy } from "react-icons/fa6";
+import { useSnackbar } from "notistack";
+import Menu from '@mui/material/Menu';
 
 const ListNoteRender = ({ listData, user }) => {
     const NoteRender = (noteData) => {
@@ -19,12 +23,24 @@ const ListNoteRender = ({ listData, user }) => {
         const [viewCount, setViewCount] = useState();
         const [cmtValue, setCommentValue] = useState("");
         const [showComment, setShowComment] = useState(false);
+
+        const { enqueueSnackbar } = useSnackbar();
         const cmtRef = useRef(null);
+        const [copiedText, setCopyTech] = useCopyToClipboard();
+
+        // mui
+        const [anchorEl, setAnchorEl] = React.useState(null);
+        const open = Boolean(anchorEl);
+        const handleClick = (event) => {
+            setAnchorEl(event.currentTarget);
+        };
+        const handleClose = () => {
+            setAnchorEl(null);
+        };
 
         useOnClickOutside(cmtRef, () => { setShowComment(false) })
 
         useEffect(() => {
-
             axios.get(`https://sakaivn.online/notes/notes-comment/${noteData.noteData.idNote}`, {
                 headers: {
                     "Content-Type": "application/json",
@@ -50,19 +66,6 @@ const ListNoteRender = ({ listData, user }) => {
          * type 0: like
          * type 1: dislike
          */
-        const handleInteractWithNote = useCallback((type, value) => {
-            // handle like/dislike here
-            if (type == 0) {
-                if (value) {
-
-                } else {
-
-                }
-            }
-        }, [])
-
-
-
 
         const handlePostComment = () => {
             axios.post("https://sakaivn.online/notes/notes-comment", {
@@ -78,9 +81,8 @@ const ListNoteRender = ({ listData, user }) => {
             })
         }
 
-
         return (
-            <div className="flex h-max max-xl:flex-col border-[1px solid #e2e2e2] rounded-[12px] px-[6px] py-[12px] mx-[12px] shadow-[0px 4px 4px rgba(0, 0, 0, 0.25)]"
+            <div className="flex h-max max-xl:flex-col max-xl:gap-5 border-[1px solid #e2e2e2] rounded-[12px] px-[6px] py-[12px] mx-[12px] shadow-[0px 4px 4px rgba(0, 0, 0, 0.25)]"
                 style={{
                     backgroundColor: `rgba(${noteData.noteData.color.r}, ${noteData.noteData.color.g}, ${noteData.noteData.color.b}, ${noteData.noteData.color.a})`,
                 }}>
@@ -98,12 +100,31 @@ const ListNoteRender = ({ listData, user }) => {
                                     <p className="text-black text-base font-normal">join at date {user.createAt}</p>
                                 </div>
                                 {/*note's menu icon */}
-                                <div className="flex items-center gap-3">
-                                    {/* share button */}
+                                <div onClick={handleClick}>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 48 49" fill="none">
                                         <path d="M42 24.5L28 10.5V18.5C14 20.5 8 30.5 6 40.5C11 33.5 18 30.3 28 30.3V38.5L42 24.5Z" fill="black" />
                                     </svg>
                                 </div>
+                                <Menu
+                                    id="basic-menu"
+                                    anchorEl={anchorEl}
+                                    open={open}
+                                    onClose={handleClose}
+                                    MenuListProps={{
+                                        'aria-labelledby': 'basic-button',
+                                    }}
+                                >
+                                    <div className="flex px-3 py-2 justify-between">
+                                        <p className="text-2xl font-bold">share note</p>
+                                        <p className="text-2xl font-bold" onClick={handleClose}>x</p>
+                                    </div>
+                                    <div className="flex gap-4 p-3 items-center">
+                                        <TextField id="standard-basic" disabled label="Standard" variant="standard" value={`http://localhost:3000/note/${noteData.noteData.idNote}`} />
+                                        <div className="text-2xl" onClick={() => { setCopyTech(`http://localhost:3000/note/${noteData.noteData.idNote}`); enqueueSnackbar('copied to clipboard') }}>
+                                            <FaCopy />
+                                        </div>
+                                    </div>
+                                </Menu>
                             </div>
                         </div>
                         {/* note content */}
@@ -162,8 +183,8 @@ const ListNoteRender = ({ listData, user }) => {
                         </div>
                     </div>
                 </div>
-                {showComment &&
-                    <div ref={cmtRef} className="flex flex-col gap-8 p-4 w-1/4 max-xl:w-full max-xl:mt-2 bg-[rgba(0,0,0,0.1)] rounded-lg">
+                {
+                    showComment && <div ref={cmtRef} className="flex flex-col gap-8 p-4 w-1/4 max-xl:w-full max-xl:mt-2 bg-[rgba(0,0,0,0.1)] rounded-lg">
                         <div className="flex gap-5 items-center h-fit group-focus:scale-105 group-focus:shadow-lg">
                             <input name="value" value={cmtValue} onChange={e => setCommentValue(e.target.value)} className="w-full group bg-transparent text-xl leading-8 border-solid border-b-[1px] border-slate-400 focus:border-b-2 focus:border-slate-700 focus:outline-none" />
                             <button onClick={handlePostComment} className="border-none bg-transparent flex justify-center items-center">
@@ -190,26 +211,35 @@ const ListNoteRender = ({ listData, user }) => {
                         </div>
                     </div>
                 }
+
             </div>
         )
     }
     return (
-        <Box p={2}
-            sx={{
-                overflowY: "auto",
-                padding: "10px 4px",
-                display: "flex",
-                flexDirection: "column",
-                backgroundColor: "#fff",
-                borderRadius: "12px",
-            }}
-        >
+        <div className="p-2 overflow-y-auto flex flex-col gap-5 rounded-md bg-white">
             {listData.map(note => {
                 return <NoteRender noteData={note} />
             })}
-        </Box>
+            {
+                listData.length == 0 && <div className="">
+                    <p className="text-xl font-bold text-center">No note to show</p>
+                </div>
+            }
+        </div>
     )
 
 }
+
+const handleInteractWithNote = (type, value) => {
+    // handle like/dislike here
+    if (type == 0) {
+        if (value) {
+
+        } else {
+
+        }
+    }
+}
+
 
 export default ListNoteRender;

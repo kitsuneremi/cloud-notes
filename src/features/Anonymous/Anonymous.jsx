@@ -4,10 +4,7 @@ import { Button } from "antd";
 import styled from "@emotion/styled";
 import { Link } from "react-router-dom";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
-import DeleteIcon from "@mui/icons-material/Delete";
-import MessageIcon from "@mui/icons-material/Message";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
-import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import "./index.css";
 import userApi from "../../api/userApi";
 import { useEffect, useRef } from "react";
@@ -30,6 +27,19 @@ const options = [
 ]
 
 const socket = io("https://lhvn.online").connect();
+
+const getCurrentDate = () => {
+  var currentTime = new Date();
+
+  // Chuyển định dạng thành "YYYY-MM-DD HH:mm:ss"
+  var formattedTime = currentTime.getFullYear() + '-' +
+    ('0' + (currentTime.getMonth() + 1)).slice(-2) + '-' +
+    ('0' + currentTime.getDate()).slice(-2) + ' ' +
+    ('0' + currentTime.getHours()).slice(-2) + ':' +
+    ('0' + currentTime.getMinutes()).slice(-2) + ':' +
+    ('0' + currentTime.getSeconds()).slice(-2);
+  return formattedTime;
+}
 
 const Anonymous = () => {
   //@kitsuneremi
@@ -97,18 +107,36 @@ const Anonymous = () => {
   });
 
   const sendMessage = () => {
+    // emit socket
     const data = {
       room: `${users.id}${targetMessageUserData.id}`,
-      data:{
-        idSend: targetMessageUserData.id,
-        idReceive: users.id,
+      data: {
+        idSend: users.id,
+        idReceive: targetMessageUserData.id,
         type: 'text',
         state: '',
         content: messageContent
       }
     };
     socket.emit("send_message", data);
-    // setList((prev) => [...prev, data]);
+
+    // save data to db
+    axios({
+      method: "POST",
+      url: `https://sakaivn.online/message/chat-unknown/${targetMessageUserData.id}`,
+      data: {
+        content: messageContent,
+        id: "",
+        idReceive: targetMessageUserData.id,
+        idSend: users.id,
+        sendAt: new Date().toISOString(),
+      },
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }).then(res => { setstatusMess(res.data.message) })
+    const displayMessageData = { idSend: data.data.idSend, idReceive: data.data.idReceive, sendAt: getCurrentDate(), content: data.data.content }
+    setMessageListData(prev => { return [...prev, displayMessageData] })
     setMessageContent("");
   }
 
@@ -116,6 +144,10 @@ const Anonymous = () => {
     setCountMessage(getMessage.length);
     document.title = `Bạn đang có ${getMessage.length} tin nhắn`;
   }, [CountMessage]);
+
+  useEffect(() => {
+    console.log(messageListData)
+  }, [messageListData])
 
   useEffect(() => {
     const check = listUserOnline.filter(user => user.name.includes(inputUser));
@@ -176,7 +208,8 @@ const Anonymous = () => {
   useEffect(() => {
     userApi.userOnline().then((res) => {
       const status = res.users.filter((user) => user.statesLogin === 1);
-      setlistUserOnline(status);
+      const listUsersOnlineExcept = status.filter((user) => user.id !== users.id);
+      setlistUserOnline(listUsersOnlineExcept);
     });
   }, []);
 
@@ -191,43 +224,6 @@ const Anonymous = () => {
     const Content = getMessage.filter((mess) => mess.content.includes(searchContent));
     const received = UserIdSend.filter((mes) => mes.content.includes(searchContent));
     setListSearchUser(Content.concat(received));
-    // if (listSearchUser.length >= 1) {
-    //   messageBoxRef.current.style.display = "none";
-    //   // document.querySelector(".Box_message").style.display = "none";
-    // } else {
-    //   messageBoxRef.current.style.display = "block";
-    //   // document.querySelector(".Box_message").style.display = "block";
-    // }
-    // Content
-    //   ? (document.querySelector(".Box_message").style.display = "none")
-    //   : (document.querySelector(".Box_message").style.display = "block");
-    // document.querySelector(".seachAnoymours").addEventListener("keydown", function (e) {
-    //   if (e.keyCode === 13) {
-    //     if (getMessage.length >= 1) {
-    //       const Content = getMessage.filter((mess) => mess.content == searchContent);
-    //       Content.forEach((message, index) => {
-    //         document.querySelector(".HylinkSearch").setAttribute("href", `#${+message.id}`);
-    //         const idContentSearch = document.querySelector(".HylinkSearch").getAttribute("href");
-    //         setCurrentMessageId(idContentSearch);
-    //       });
-    //     } else if (getMessage == null) {
-    //       console.log("null");
-    //     } else {
-    //       console.log("err");
-    //     }
-    //     const idContent = document.querySelectorAll(".contentMessage");
-    //     idContent.forEach((id, index) => {
-    //       const test = id.getAttribute("id");
-
-    //       if (currentMessageId == `#${test}`) {
-    //         id.style.backgroundColor = "#000";
-    //         id.style.color = "#fff";
-    //       } else {
-    //         console.log("lỗi");
-    //       }
-    //     });
-    //   }
-    // });
   }, [searchContent]);
 
   //// xu ly file
@@ -291,8 +287,8 @@ const Anonymous = () => {
     notifityBlock.style.display = "none";
     enqueueSnackbar(" Hủy chặn tin nhắn thành công", { variant: "success" });
   };
-  ///search messge
 
+  // search messge
   const handleSearch = () => {
     setToggleOption(!toggleOption);
     if (UserOnlineId == users.id) {
@@ -519,20 +515,20 @@ const Anonymous = () => {
         </div> */}
           {/* message render */}
           <div ref={messageBoxRef} className='absolute w-full right-0 top-[80px] h-[calc(100%-160px)]'>
-            <div className="flex flex-col gap-2 overflow-y-auto">
+            <div className="flex h-full flex-col gap-8 overflow-y-auto">
               {
                 targetMessageUserData &&
-                messageListData.map(message => {
+                messageListData.map((message, index) => {
                   return (
-                    <div key={message.id} className="flex flex-col items-center min-h-16">
+                    <div key={index} className="flex flex-col items-center h-max min-h-16">
                       <div className={`p-2 rounded-full items-center w-fit max-w-[66%] flex gap-2 ${message.idSend == users.id ? 'flex-row-reverse self-end' : 'flex-row'} mt-2`}>
                         <img className="w-16 h-16 rounded-full" src={`${targetMessageUserData.img || process.env.PUBLIC_URL + "/assets/user.png"}`} alt='' />
                         <div className="bg-white text-black p-3 min-h-[50px] rounded-3xl ml-2">
                           <div className="flex flex-col gap-1">
-                            <p className={`font-bold text-xl ${message.idSend == users.id ? 'self-end' : ''}`} id={message.id}>
+                            <p className={`font-bold text-xl ${message.idSend == users.id ? 'self-end' : 'self-start'}`} id={index}>
                               {message.content}
                             </p>
-                            <p className={`text-xs font-thin text-slate-500 ${message.idSend == users.id ? 'self-end' : ''}`}>{message.sendAt}</p>
+                            <p className={`text-xs font-thin text-slate-500 ${message.idSend == users.id ? 'self-end' : 'self-start'}`}>{message.sendAt}</p>
                           </div>
                         </div>
                       </div>

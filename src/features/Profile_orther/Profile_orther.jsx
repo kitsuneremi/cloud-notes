@@ -27,25 +27,6 @@ import {
 } from "../../shadcn/ui/dropdown-menu"
 import { useOnClickOutside } from "../../customHook/useOnClickOutside";
 
-
-const TestData = [{
-  "color": { a: 0.87, b: 125, g: 125, r: 255 },
-  "createAt": "2024-01-04 20:30:44",
-  "data": "test content 2",
-  "doneNote": 0,
-  "dueAt": null,
-  "idNote": 96,
-  idUser: 39,
-  linkNoteShare: "",
-  lock: null,
-  notePublic: 1,
-  pinned: 0,
-  remindAt: null,
-  title: "test note 2",
-  type: "text",
-  updateAt: "Thu, 04 Jan 2024 20:30:44 GMT"
-}]
-
 function Profile_orther({ data, handleDelNote, setArchivedData, toolsNote }) {
   const user =
     useSelector((state) => state.user.current) || JSON.parse(localStorage.getItem("user"));
@@ -200,7 +181,7 @@ function Profile_orther({ data, handleDelNote, setArchivedData, toolsNote }) {
             </div>
             <div className="flex max-xl:flex-col-reverse gap-5">
               <div className="xl:w-2/3 w-full min-h-96 h-fit">
-                <ListNoteRender listData={TestData} user={user} />
+                <ListNoteRender listData={note} user={otherProfile} />
               </div>
               <div className="bg-[#fff4ba] rounded-[12px] py-[12px] border-[1px solid #E81313] w-[96%] mx-[2%] xl:w-1/3 px-5 mr-5">
                 <div className="flex justify-between mb-[10px] items-center">

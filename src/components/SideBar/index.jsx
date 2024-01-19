@@ -224,7 +224,7 @@ function SideBar({ usergg, handleOpenDrawer, drawerNew }) {
               )}
 
               <ListItemIcon className={classes.settingIcon}>
-                <SettingsOutlined sx={{ color: "#fff", fontSize: "30px", marginLeft: "20px" }} />
+                <SettingsOutlined className="max-lg:hidden" sx={{ color: "#fff", fontSize: "30px", marginLeft: "20px" }} />
               </ListItemIcon>
             </ListItemButton>
           </ListItem>

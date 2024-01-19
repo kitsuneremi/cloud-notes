@@ -13,6 +13,7 @@ import Anonymous from "./features/Anonymous/Anonymous";
 import Profile_orther from "./features/Profile_orther/Profile_orther";
 import Test from "./pages/Test/Test";
 import AuthLayout from './features/Auth/layout';
+import MessagePage from "./features/Message/Message";
 function App() {
   const RequireLogin = () => {
     return !checkJWT() ? <Outlet /> : <Login />;
@@ -37,7 +38,7 @@ function App() {
           <Route path='/upload' element={<ImageUploader />} />
           <Route path='/group/:idGroup/*' element={<GroupDetail />} />
           <Route path='/note/:noteId' element={<Note />} />
-
+          <Route path="/message" element={<MessagePage />} />
           <Route path='/anonymous' element={<Anonymous />} />
         </Route>
 

@@ -224,8 +224,8 @@ function Archived({ data, handleDelNote, setArchivedData, toolsNote, clear }) {
   };
 
   return (
-    <div className={classes.root}>
-      <div className={classes.headerFeature}>
+    <div className={'w-[calc(100vw-250px)] ml-[250px] max-lg:w-[calc(100vw-210px)] h-[90dvh] max-lg:ml-[210px]'}>
+      <div className='flex justify-between h-[50px] items-center'>
         {selectedNote && (
           <EditForm
             dataItem={selectedNote}
@@ -239,38 +239,14 @@ function Archived({ data, handleDelNote, setArchivedData, toolsNote, clear }) {
           />
         )}
 
-        <Box className='feature'>
-          {/* <Button
-            className={classes.List}
-            variant='outlined'
-            sx={{
-              color: "black",
-              textTransform: "capitalize",
-              borderRadius: "10px",
-              borderColor: "black",
-              width: view && construct === "List" ? "100px" : "auto",
-              "&:hover": { borderColor: "black" },
-            }}
-            startIcon={construct === "Grid" ? <GridViewOutlined /> : <FormatListBulleted />}
-            onClick={() => {
-              construct === "Grid" ? setConstruct("List") : setConstruct("Grid");
+        <div className='w-full h-full flex gap-3 pl-2 items-center'>
+          <button className='text-white bg-slate-700 h-9 rounded-lg hover:shadow-lg flex gap-2 items-center px-2 py-1 font-semibold text-lg text-nowrap'
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleTabs();
             }}
           >
-            {construct}
-          </Button> */}
-          <Button
-            className={classes.List}
-            variant='outlined'
-            sx={{
-              color: "black",
-              textTransform: "capitalize",
-              borderRadius: "10px",
-              borderColor: "black",
-              marginLeft: "15px",
-              width: view && construct === "Sort By" ? "100px" : "auto",
-              "&:hover": { borderColor: "black" },
-            }}
-            startIcon={
+            {
               construct === "Sort By" ? (
                 <FilterListIcon
                   onClick={(event) => {
@@ -282,30 +258,14 @@ function Archived({ data, handleDelNote, setArchivedData, toolsNote, clear }) {
                 <FilterListIcon />
               )
             }
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleTabs();
-            }}
-          >
             Sort By
-          </Button>
-          <Button
-            className={classNames(classes.List, "sort-button-text")}
-            variant='outlined'
-            sx={{
-              color: "black",
-              textTransform: "capitalize",
-              borderRadius: "10px",
-              borderColor: "black",
-              width: view && construct === "Refresh" ? "100px" : "auto",
-              marginLeft: "20px",
-              "&:hover": { borderColor: "black" },
-            }}
-            startIcon={construct === "Refresh" ? <LoopIcon /> : <LoopIcon />}
+          </button>
+          <button
+            className={'text-white bg-slate-700 h-9 rounded-lg hover:shadow-lg flex items-center px-2 py-1 font-semibold text-lg text-nowrap'}
             onClick={handleRefresh}
           >
-
-          </Button>
+            {construct === "Refresh" ? <LoopIcon /> : <LoopIcon />}
+          </button>
           {isTabsOpen && (
             <div className='overlay' ref={overlayRef} onClick={handleOverlayClick}>
               <TabContext value={tabValue}>
@@ -351,9 +311,11 @@ function Archived({ data, handleDelNote, setArchivedData, toolsNote, clear }) {
               </TabContext>
             </div>
           )}
-        </Box>
+        </div>
         <SearchInput setValue={setValue} onSearchItemClick={handleSearchItemClick} />
       </div>
+      {/* end header */}
+
       {view === "Side" && construct === "List" ? (
         <ListView
           data={sortedAndFilteredData}

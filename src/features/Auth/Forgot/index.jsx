@@ -159,13 +159,9 @@ function Forgot() {
                             <InputField label='Enter code' name='code' form={form} />
 
                         </Box> */}
-                    <Button
-                        size='large'
-                        sx={{ marginTop: 1, color: "#fff", backgroundColor: "#3A4BE0" }}
-                        type='submit'
-                    >
+                    <button className="px-2 py-1 text-2xl text-white bg-[#3A4BE0] w-full mt-1">
                         Confirm
-                    </Button>
+                    </button>
                 </form>
 
 

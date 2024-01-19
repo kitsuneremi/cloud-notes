@@ -65,45 +65,17 @@ function ListView({
   };
 
   return (
-    <Box
-      className='root tiny-scrollbar'
-      sx={{
-        minWidth: "250px",
-        width: "calc(40% - 150px)",
-        height: "90dvh",
-        overflowY: "scroll",
-      }}
-    >
-      <Box
-        className='scroll'
-        sx={{
-          width: "100%",
-          display: "flex",
-
-          flexDirection: "column",
-          gap: "8px",
-          padding: "0 20px",
-        }}
-      >
+    <div className='w-full h-[90vh] flex'>
+      { }<div className='w-full lg:w-[300px] flex-grow-0 flex flex-col gap-2 px-2'>
         {toggleNote === true
           ? limitedData.map((item, index) => (
-            <div key={index}>
+            <div className="w-full" key={index}>
 
-              <Button
-                sx={{
-                  backgroundColor: `rgba(${item.color.r},${item.color.g},${item.color.b},${item.color.a})`,
-                  color: "#000",
-                  padding: "10px 16px",
-
-                  width: "100%",
-                  display: "grid",
-                  gridTemplateColumns: "50px 1fr",
-                  textAlign: "left",
-
-                }}
+              <button
+                style={{ backgroundColor: selected == index ? '#c2c2c2' : `rgba(${item.color.r},${item.color.g},${item.color.b},${item.color.a})` }}
+                className={`text-black py-2 px-4 w-full grid grid-cols-1 text-left rounded-xl`}
                 onClick={() => {
                   setSelected(item.idNote);
-
                   setDialog(true);
                   window.history.pushState({}, "", `/note/${item.idNote}`);
                 }}
@@ -145,21 +117,14 @@ function ListView({
                     style={{ width: "100%", objectFit: "contain", gridColumn: "span 2" }}
                   />
                 )}
-              </Button>
+              </button>
             </div>
           ))
           : data.slice(0, 50).map((item, index) => (
             <div key={index}>
-              <Button
-                sx={{
-                  backgroundColor: `rgba(${item.color.r},${item.color.g},${item.color.b},${item.color.a})`,
-                  color: "#000",
-                  padding: "10px 16px",
-                  width: "100%",
-                  display: "grid",
-                  gridTemplateColumns: "50px 1fr",
-                  textAlign: "left",
-                }}
+              <button
+                style={{ backgroundColor: selected == index ? '#c2c2c2' : `rgba(${item.color.r},${item.color.g},${item.color.b},${item.color.a})` }}
+                className={`text-black py-2 px-4 w-full grid grid-cols-1 text-left rounded-xl }`}
                 onClick={() => {
                   if (checkJWT()) {
                     return window.location.assign("/login");
@@ -227,7 +192,7 @@ function ListView({
                 >
                   Update at:
                   <span>{" "}
-                    {new Date().toLocaleDateString() ===new Date(item.updateAt).toLocaleDateString() ? (
+                    {new Date().toLocaleDateString() === new Date(item.updateAt).toLocaleDateString() ? (
                       new Date(item.updateAt).getHours() === new Date().getHours() ? (
                         new Date(item.updateAt).getMinutes() === new Date().getMinutes() ? (
                           "Just now"
@@ -243,36 +208,39 @@ function ListView({
                       new Date(item.updateAt).toLocaleString()
                     )}</span>
                 </div>
-              </Button>
+              </button>
             </div>
           ))}
-      </Box>
-
-      {data[selected] &&
-        (!data[selected].lock ? (
-          <EditForm
-            limitedData={limitedData}
-            key={selected}
-            dataItem={data[selected]}
-            handleDelNote={handleDelNote}
-            setArchivedData={setArchivedData}
-            construct={construct}
-            clear={clearA}
-            toggleNote={toggleNote}
-          />
-        ) : (
-          lockData[selected] && (
+      </div>
+      <div className="max-lg:w-full lg:flex-grow">
+        {data[selected] &&
+          (!data[selected].lock ? (
             <EditForm
+              limitedData={limitedData}
               key={selected}
-              datas={data}
-              dataItem={lockData[selected].note}
+              dataItem={data[selected]}
               handleDelNote={handleDelNote}
               setArchivedData={setArchivedData}
               construct={construct}
               clear={clearA}
+              toggleNote={toggleNote}
             />
+          ) : (
+            lockData[selected] && (
+              <EditForm
+                key={selected}
+                datas={data}
+                dataItem={lockData[selected].note}
+                handleDelNote={handleDelNote}
+                setArchivedData={setArchivedData}
+                construct={construct}
+                clear={clearA}
+              />
+            )
           )
-        ))}
+          )
+        }
+      </div>
 
       {data[selected] && data[selected].lock && !lockData[selected] && (
         <div>
@@ -305,7 +273,7 @@ function ListView({
           </Dialog>
         </div>
       )}
-    </Box>
+    </div>
   );
 }
 

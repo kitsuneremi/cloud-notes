@@ -180,15 +180,9 @@ function Register(props) {
               <PasswordField name='password' label='Password' form={form} />
               <PasswordField name='rePassword' label='Retype password' form={form} />
 
-              <Button
-                type='submit'
-                disabled={isSubmitting}
-                fullWidth
-                variant='contained'
-                sx={{ mt: 3, mb: 2 }}
-              >
+              <button className="px-2 py-1 text-2xl text-white bg-[#3A4BE0] w-full mt-1">
                 Sign up
-              </Button>
+              </button>
               <Grid container justifyContent={"center"}>
                 {/* <Grid item xs></Grid> */}
                 <Grid item>

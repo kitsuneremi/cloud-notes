@@ -15,7 +15,7 @@ import { login } from "../userSlice";
 
 import jwtDecode from "jwt-decode";
 import StorageKeys from "../../../constants/storage-keys";
-import { useNavigate,useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import "./index.scss";
 import images from "../../../assets/images";
 import axios from 'axios'
@@ -58,7 +58,7 @@ function Login(props) {
   const handleSubmit = async (values) => {
     try {
       const action = login(values);
-      
+
       const resultAction = dispatch(action);
       console.log(resultAction);
       unwrapResult(resultAction);
@@ -111,13 +111,9 @@ function Login(props) {
           <InputField label='User name or gmail ' name='user_name' form={form} />
           <PasswordField label='Password' form={form} name='password' />
 
-          <Button
-            size='large'
-            sx={{ marginTop: 1, color: "#fff", backgroundColor: "#3A4BE0" }}
-            type='submit'
-          >
+          <button className="p-2 font-bold text-2xl text-white bg-[#3A4BE0] w-full mt-1">
             Log in
-          </Button>
+          </button>
         </form>
 
         <Box sx={{ textAlign: "center", marginTop: "26px" }}>
@@ -125,18 +121,9 @@ function Login(props) {
             Forgotten password?
           </Link>
           <Link href='/register'>
-            <Button
-              size='large'
-              sx={{
-                marginTop: 1,
-                color: "#fff",
-                backgroundColor: "#7BD15D",
-                width: "100%",
-              }}
-              type='submit'
-            >
+            <button className="p-2 text-2xl font-bold text-white bg-[#7BD15D] w-full mt-1">
               Create a new account
-            </Button>
+            </button>
           </Link>
         </Box>
       </Box>
